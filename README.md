@@ -43,7 +43,7 @@ A Godot Plugin that allows high-quality Text-to-Speech utilizing ElevenLabs API.
 
 ### 🤝 Contributing
 
-[Pull requests, bug reports, and suggestions](https://github.com/Wiechciu/eleven-labs/pulls) are welcome!
+[Pull requests](https://github.com/Wiechciu/eleven-labs/pulls), [bug reports](https://github.com/Wiechciu/eleven-labs/issues), and [suggestions](https://github.com/Wiechciu/eleven-labs/issues) are welcome!
 
 If you’d like to add features, feel free to fork and submit a PR.
 
