@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://5e8hviqyy3qk"]
 
-[ext_resource type="Script" uid="uid://cxhtpn6auwige" path="res://addons/eleven_labs/eleven_labs.gd" id="1_q1114"]
-[ext_resource type="Texture2D" uid="uid://vifrv66m3jv6" path="res://addons/eleven_labs/art/hide.png" id="2_ufv2l"]
-[ext_resource type="Texture2D" uid="uid://du1b77o5g2nw2" path="res://addons/eleven_labs/art/show.png" id="3_2m66e"]
+[ext_resource type="Script" uid="uid://cxhtpn6auwige" path="res://eleven_labs.gd" id="1_q1114"]
+[ext_resource type="Texture2D" uid="uid://vifrv66m3jv6" path="res://art/hide.png" id="2_ufv2l"]
+[ext_resource type="Texture2D" uid="uid://du1b77o5g2nw2" path="res://art/show.png" id="3_2m66e"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q1114"]
 content_margin_left = 0.0
