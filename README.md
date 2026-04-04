@@ -19,6 +19,7 @@ https://github.com/user-attachments/assets/a58cd6f6-d013-4edd-8cc6-251969f820ab
 - Text-to-Speech
 - (planned) Speech-to-Text
 - (planned) Multi-request handling
+- (planned) Internal API for runtime request handling
 
 ---
 
