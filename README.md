@@ -25,15 +25,19 @@ A Godot Plugin that allows high-quality Text-to-Speech utilizing ElevenLabs API.
 2. In Godot, go to **Project > Project Settings > Plugins**.
 3. Enable **ElevenLabs** Plugin.
 
+<img width="756" height="148" alt="image" src="https://github.com/user-attachments/assets/ee478ed7-7ed2-4cf2-bea0-cf12faac436f" />
+
 ---
 
 ### ⚙️ Usage
 
-1. Create an API Key at https://elevenlabs.io/app/api/api-keys and enter it in the API key field.
+1. Create an API Key at https://elevenlabs.io/app/api/api-keys and enter it in the **API key** field.
 2. Click **Load voices** to load all your voices from ElevenLabs, then select your desired voice.
-3. Enter language and text you want to convert into speech.
-4. Optionally, specify the output path and if the audio file should play immediately after being retrieved.
+3. Enter **language** and **text** you want to convert into speech.
+4. Optionally, specify the **output path** and if the audio file should **play immediately** after being retrieved.
 5. Click **Generate** to send request to ElevenLabs and enjoy the outcome.
+
+<img width="929" height="260" alt="image" src="https://github.com/user-attachments/assets/c93d1f64-7794-4ecd-bfbd-185224c5c29c" />
 
 ---
 
