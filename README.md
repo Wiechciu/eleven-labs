@@ -56,6 +56,6 @@ If you’d like to add features, feel free to fork and submit a PR.
 
 ---
 
-### ⚠️ Disclaimer
+### 📜 Disclaimer
 
 For ElevenLabs API reference, check https://elevenlabs.io/docs/api-reference
