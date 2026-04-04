@@ -14,6 +14,7 @@ A Godot Plugin that allows high-quality Text-to-Speech utilizing ElevenLabs API.
 
 - Text-to-Speech
 - (planned) Speech-to-Text
+- (planned) Multi-request handling
 
 ---
 
