@@ -5,6 +5,7 @@
 - [⚙️ Usage](#️-usage)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
+- [⚠️ Disclaimer](#-disclaimer)
 
 A Godot Plugin that allows high-quality Text-to-Speech utilizing ElevenLabs API.
 
@@ -53,3 +54,8 @@ If you’d like to add features, feel free to fork and submit a PR.
 
 [MIT License](https://github.com/Wiechciu/eleven-labs?tab=MIT-1-ov-file) – feel free to use in commercial or open-source projects.
 
+---
+
+### ⚠️ Disclaimer
+
+For ElevenLabs API reference, check https://elevenlabs.io/docs/api-reference
