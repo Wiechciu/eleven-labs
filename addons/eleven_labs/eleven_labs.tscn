@@ -1,0 +1,127 @@
+[gd_scene format=3 uid="uid://5e8hviqyy3qk"]
+
+[ext_resource type="Script" uid="uid://cxhtpn6auwige" path="res://addons/eleven_labs/eleven_labs.gd" id="1_q1114"]
+[ext_resource type="Texture2D" uid="uid://vifrv66m3jv6" path="res://addons/eleven_labs/art/hide.png" id="2_ufv2l"]
+[ext_resource type="Texture2D" uid="uid://du1b77o5g2nw2" path="res://addons/eleven_labs/art/show.png" id="3_2m66e"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q1114"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="ElevenLabs" type="PanelContainer" unique_id=1275267449 node_paths=PackedStringArray("http", "player", "show_api_key", "api_key", "voices", "load_voices", "status", "text", "language", "path", "generate", "play")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q1114")
+http = NodePath("HTTPRequest")
+player = NodePath("AudioStreamPlayer")
+show_api_key = NodePath("VBoxContainer/HBoxContainer/ShowAPIKey")
+api_key = NodePath("VBoxContainer/HBoxContainer/APIKey")
+voices = NodePath("VBoxContainer/HBoxContainer2/Voices")
+load_voices = NodePath("VBoxContainer/HBoxContainer2/LoadVoices")
+status = NodePath("VBoxContainer/Status")
+text = NodePath("VBoxContainer/Text")
+language = NodePath("VBoxContainer/Language")
+path = NodePath("VBoxContainer/Path")
+generate = NodePath("VBoxContainer/Generate")
+play = NodePath("VBoxContainer/CheckBox")
+hide_icon = ExtResource("2_ufv2l")
+show_icon = ExtResource("3_2m66e")
+
+[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=686083027]
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1882041832]
+
+[node name="VBoxContainer" type="GridContainer" parent="." unique_id=1960912141]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1470764151]
+layout_mode = 2
+text = "API key:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1194969573]
+layout_mode = 2
+
+[node name="ShowAPIKey" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=803615575]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+icon = ExtResource("3_2m66e")
+expand_icon = true
+
+[node name="APIKey" type="LineEdit" parent="VBoxContainer/HBoxContainer" unique_id=1503450122]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "6d690debcee659b6f9b0505316dfe2e325190769c8ec16cd7decc65041f325b5"
+placeholder_text = "api key"
+secret = true
+
+[node name="Label6" type="Label" parent="VBoxContainer" unique_id=1536433784]
+layout_mode = 2
+text = "Voice:"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=1652104256]
+layout_mode = 2
+
+[node name="Voices" type="OptionButton" parent="VBoxContainer/HBoxContainer2" unique_id=1866964132]
+layout_mode = 2
+
+[node name="LoadVoices" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=665346929]
+layout_mode = 2
+text = "Load voices"
+
+[node name="Label2" type="Label" parent="VBoxContainer" unique_id=769800019]
+layout_mode = 2
+text = "Language:"
+
+[node name="Language" type="LineEdit" parent="VBoxContainer" unique_id=1130306885]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "en"
+placeholder_text = "language"
+max_length = 2
+
+[node name="Label3" type="Label" parent="VBoxContainer" unique_id=221251765]
+layout_mode = 2
+text = "Text:"
+
+[node name="Text" type="TextEdit" parent="VBoxContainer" unique_id=933478314]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "This works great!"
+placeholder_text = "text to speech"
+
+[node name="Label4" type="Label" parent="VBoxContainer" unique_id=1572276052]
+layout_mode = 2
+text = "Path:"
+
+[node name="Path" type="LineEdit" parent="VBoxContainer" unique_id=102841458]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "res://addons/eleven_labs/audio_streams/"
+placeholder_text = "path"
+
+[node name="Label5" type="Label" parent="VBoxContainer" unique_id=1432380712]
+layout_mode = 2
+text = "Play immediately:"
+
+[node name="CheckBox" type="CheckBox" parent="VBoxContainer" unique_id=1530926806]
+layout_mode = 2
+button_pressed = true
+
+[node name="Generate" type="Button" parent="VBoxContainer" unique_id=1378479899]
+layout_mode = 2
+text = "Generate"
+
+[node name="Status" type="RichTextLabel" parent="VBoxContainer" unique_id=375830196]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_q1114")
+bbcode_enabled = true
+text = "Ready"
+vertical_alignment = 1
