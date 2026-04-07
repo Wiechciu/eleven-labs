@@ -38,14 +38,39 @@ https://github.com/user-attachments/assets/a1eccef7-8b8d-42e2-a6d2-e24738333353
 
 ### ⚙️ Usage
 
+#### Single text
+
 1. Create an API Key at https://elevenlabs.io/app/api/api-keys and enter it in the **API key** field.
+   Optionally, click **Refresh** to test the connection and check your credit usage.
 2. Click **Load voices** to load all your voices from ElevenLabs, then select your desired voice.
 3. Enter **language** and **text** you want to convert into speech.
 4. Optionally, specify the **output path** and if the audio file should **play immediately** after being retrieved.
 5. Click **Generate** to send request to ElevenLabs and enjoy the outcome.
 
-<img width="929" height="260" alt="image" src="https://github.com/user-attachments/assets/c93d1f64-7794-4ecd-bfbd-185224c5c29c" />
+<img width="935" height="341" alt="image" src="https://github.com/user-attachments/assets/b5456c2b-a90b-4d0a-a286-24c62d02378f" />
 
+
+#### Multi text
+
+1. Change **Request type** to **Multi**.
+2. Select ***.json** file containing array in the format specified below.
+3. Click **Generate** to queue requests to ElevenLabs and enjoy the outcome.
+   You can abort the queue at any time by clicking **Stop** button.
+<img width="935" height="262" alt="image" src="https://github.com/user-attachments/assets/354fd2b0-6385-4035-93af-5150856f9e51" />
+
+The following format is allowed for Multi text file:
+```
+[
+	{
+		"language": "en",
+		"text": "This plugin works great!"
+	},
+	{
+		"language": "es",
+		"text": "¡Este plugin funciona genial!"
+	}
+]
+```
 ---
 
 ### 🤝 Contributing
