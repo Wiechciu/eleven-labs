@@ -10,7 +10,7 @@ A Godot Plugin that allows high-quality Text-to-Speech utilizing ElevenLabs API.
 
 See how simple it is:
 
-https://github.com/user-attachments/assets/a58cd6f6-d013-4edd-8cc6-251969f820ab
+https://github.com/user-attachments/assets/a1eccef7-8b8d-42e2-a6d2-e24738333353
 
 ---
 
