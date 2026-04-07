@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://5e8hviqyy3qk"]
 
-[ext_resource type="Script" uid="uid://cxhtpn6auwige" path="res://eleven_labs.gd" id="1_q1114"]
-[ext_resource type="Texture2D" uid="uid://vifrv66m3jv6" path="res://art/hide.png" id="2_ufv2l"]
-[ext_resource type="Texture2D" uid="uid://du1b77o5g2nw2" path="res://art/show.png" id="3_2m66e"]
+[ext_resource type="Script" uid="uid://cxhtpn6auwige" path="res://addons/eleven_labs/eleven_labs.gd" id="1_q1114"]
+[ext_resource type="Texture2D" uid="uid://vifrv66m3jv6" path="res://addons/eleven_labs/art/hide.png" id="2_ufv2l"]
+[ext_resource type="Texture2D" uid="uid://du1b77o5g2nw2" path="res://addons/eleven_labs/art/show.png" id="3_2m66e"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_q1114"]
 content_margin_left = 0.0
@@ -10,7 +10,7 @@ content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
 
-[node name="ElevenLabs" type="PanelContainer" unique_id=1275267449 node_paths=PackedStringArray("http", "player", "show_api_key", "api_key", "voices", "load_voices", "status", "text", "language", "path", "generate", "play")]
+[node name="ElevenLabs" type="PanelContainer" unique_id=1275267449 node_paths=PackedStringArray("http", "player", "show_api_key", "api_key", "voices", "load_voices", "status", "text_label", "text", "language_label", "language", "output_path", "generate", "stop", "play", "output_format", "usage", "refresh", "load_file", "file_dialog", "multi_label", "multi_text_file_path", "multi_container", "request_type", "request_type_label")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -19,16 +19,29 @@ grow_vertical = 2
 script = ExtResource("1_q1114")
 http = NodePath("HTTPRequest")
 player = NodePath("AudioStreamPlayer")
-show_api_key = NodePath("VBoxContainer/HBoxContainer/ShowAPIKey")
-api_key = NodePath("VBoxContainer/HBoxContainer/APIKey")
-voices = NodePath("VBoxContainer/HBoxContainer2/Voices")
-load_voices = NodePath("VBoxContainer/HBoxContainer2/LoadVoices")
-status = NodePath("VBoxContainer/Status")
-text = NodePath("VBoxContainer/Text")
-language = NodePath("VBoxContainer/Language")
-path = NodePath("VBoxContainer/Path")
-generate = NodePath("VBoxContainer/Generate")
-play = NodePath("VBoxContainer/CheckBox")
+show_api_key = NodePath("GridContainer/HBoxContainer/ShowAPIKey")
+api_key = NodePath("GridContainer/HBoxContainer/APIKey")
+voices = NodePath("GridContainer/HBoxContainer2/Voices")
+load_voices = NodePath("GridContainer/HBoxContainer2/LoadVoices")
+status = NodePath("GridContainer/Status")
+text_label = NodePath("GridContainer/TextLabel")
+text = NodePath("GridContainer/Text")
+language_label = NodePath("GridContainer/LanguageLabel")
+language = NodePath("GridContainer/Language")
+output_path = NodePath("GridContainer/OutputPath")
+generate = NodePath("GridContainer/Generate")
+stop = NodePath("GridContainer/Stop")
+play = NodePath("GridContainer/CheckBox")
+output_format = NodePath("GridContainer/OutputFormat")
+usage = NodePath("GridContainer/HBoxContainer3/Usage")
+refresh = NodePath("GridContainer/HBoxContainer3/Refresh")
+load_file = NodePath("GridContainer/MultiContainer/LoadFile")
+file_dialog = NodePath("GridContainer/MultiContainer/FileDialog")
+multi_label = NodePath("GridContainer/MultiLabel")
+multi_text_file_path = NodePath("GridContainer/MultiContainer/MultiTextFilePath")
+multi_container = NodePath("GridContainer/MultiContainer")
+request_type = NodePath("GridContainer/HBoxContainer5/RequestType")
+request_type_label = NodePath("GridContainer/HBoxContainer5/RequestTypeLabel")
 hide_icon = ExtResource("2_ufv2l")
 show_icon = ExtResource("3_2m66e")
 
@@ -36,60 +49,115 @@ show_icon = ExtResource("3_2m66e")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1882041832]
 
-[node name="VBoxContainer" type="GridContainer" parent="." unique_id=1960912141]
+[node name="GridContainer" type="GridContainer" parent="." unique_id=1960912141]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="VBoxContainer" unique_id=1470764151]
+[node name="Label" type="Label" parent="GridContainer" unique_id=1470764151]
 layout_mode = 2
 text = "API key:"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1194969573]
+[node name="HBoxContainer" type="HBoxContainer" parent="GridContainer" unique_id=1194969573]
 layout_mode = 2
 
-[node name="ShowAPIKey" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=803615575]
+[node name="ShowAPIKey" type="Button" parent="GridContainer/HBoxContainer" unique_id=803615575]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 icon = ExtResource("3_2m66e")
 expand_icon = true
 
-[node name="APIKey" type="LineEdit" parent="VBoxContainer/HBoxContainer" unique_id=1503450122]
+[node name="APIKey" type="LineEdit" parent="GridContainer/HBoxContainer" unique_id=1503450122]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "6d690debcee659b6f9b0505316dfe2e325190769c8ec16cd7decc65041f325b5"
 placeholder_text = "api key"
 secret = true
 
-[node name="Label6" type="Label" parent="VBoxContainer" unique_id=1536433784]
+[node name="Label7" type="Label" parent="GridContainer" unique_id=1833413954]
+layout_mode = 2
+text = "Usage:"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="GridContainer" unique_id=980087472]
+layout_mode = 2
+
+[node name="Refresh" type="Button" parent="GridContainer/HBoxContainer3" unique_id=1762097714]
+layout_mode = 2
+text = "Refresh"
+
+[node name="Usage" type="Label" parent="GridContainer/HBoxContainer3" unique_id=1521004450]
+layout_mode = 2
+text = "- / -"
+
+[node name="Label6" type="Label" parent="GridContainer" unique_id=1536433784]
 layout_mode = 2
 text = "Voice:"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=1652104256]
+[node name="HBoxContainer2" type="HBoxContainer" parent="GridContainer" unique_id=1652104256]
 layout_mode = 2
 
-[node name="Voices" type="OptionButton" parent="VBoxContainer/HBoxContainer2" unique_id=1866964132]
+[node name="LoadVoices" type="Button" parent="GridContainer/HBoxContainer2" unique_id=665346929]
+layout_mode = 2
+text = "Load"
+
+[node name="Voices" type="OptionButton" parent="GridContainer/HBoxContainer2" unique_id=1866964132]
 layout_mode = 2
 
-[node name="LoadVoices" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=665346929]
+[node name="Label10" type="Label" parent="GridContainer" unique_id=1484671152]
 layout_mode = 2
-text = "Load voices"
+text = "Request type:"
 
-[node name="Label2" type="Label" parent="VBoxContainer" unique_id=769800019]
+[node name="HBoxContainer5" type="HBoxContainer" parent="GridContainer" unique_id=1091325206]
+layout_mode = 2
+
+[node name="RequestType" type="CheckButton" parent="GridContainer/HBoxContainer5" unique_id=1561466274]
+layout_mode = 2
+
+[node name="RequestTypeLabel" type="Label" parent="GridContainer/HBoxContainer5" unique_id=322954883]
+layout_mode = 2
+text = "Single"
+
+[node name="MultiLabel" type="Label" parent="GridContainer" unique_id=485684198]
+visible = false
+layout_mode = 2
+text = "Multi text path:"
+
+[node name="MultiContainer" type="HBoxContainer" parent="GridContainer" unique_id=1023574397]
+visible = false
+layout_mode = 2
+
+[node name="LoadFile" type="Button" parent="GridContainer/MultiContainer" unique_id=931480090]
+layout_mode = 2
+text = "Load"
+
+[node name="MultiTextFilePath" type="LineEdit" parent="GridContainer/MultiContainer" unique_id=979125204]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "path"
+
+[node name="FileDialog" type="FileDialog" parent="GridContainer/MultiContainer" unique_id=1440795552]
+oversampling_override = 1.0
+title = "Open a File"
+initial_position = 2
+file_mode = 0
+display_mode = 1
+filters = PackedStringArray("*.json")
+
+[node name="LanguageLabel" type="Label" parent="GridContainer" unique_id=769800019]
 layout_mode = 2
 text = "Language:"
 
-[node name="Language" type="LineEdit" parent="VBoxContainer" unique_id=1130306885]
+[node name="Language" type="LineEdit" parent="GridContainer" unique_id=1130306885]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "en"
 placeholder_text = "language"
 max_length = 2
 
-[node name="Label3" type="Label" parent="VBoxContainer" unique_id=221251765]
+[node name="TextLabel" type="Label" parent="GridContainer" unique_id=221251765]
 layout_mode = 2
 text = "Text:"
 
-[node name="Text" type="TextEdit" parent="VBoxContainer" unique_id=933478314]
+[node name="Text" type="TextEdit" parent="GridContainer" unique_id=933478314]
 custom_minimum_size = Vector2(100, 50)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -97,29 +165,72 @@ size_flags_vertical = 3
 text = "This works great!"
 placeholder_text = "text to speech"
 
-[node name="Label4" type="Label" parent="VBoxContainer" unique_id=1572276052]
+[node name="Label4" type="Label" parent="GridContainer" unique_id=1572276052]
 layout_mode = 2
-text = "Path:"
+text = "Output path:"
 
-[node name="Path" type="LineEdit" parent="VBoxContainer" unique_id=102841458]
+[node name="OutputPath" type="LineEdit" parent="GridContainer" unique_id=102841458]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "res://addons/eleven_labs/audio_streams/"
-placeholder_text = "path"
+placeholder_text = "output path"
 
-[node name="Label5" type="Label" parent="VBoxContainer" unique_id=1432380712]
+[node name="Label8" type="Label" parent="GridContainer" unique_id=223673577]
+layout_mode = 2
+text = "Output format:"
+
+[node name="OutputFormat" type="OptionButton" parent="GridContainer" unique_id=772554601]
+layout_mode = 2
+size_flags_horizontal = 2
+selected = 2
+item_count = 14
+popup/item_0/text = "mp3_22050_32"
+popup/item_0/id = 0
+popup/item_1/text = "mp3_24000_48"
+popup/item_1/id = 1
+popup/item_2/text = "mp3_44100_32"
+popup/item_2/id = 2
+popup/item_3/text = "mp3_44100_64"
+popup/item_3/id = 3
+popup/item_4/text = "mp3_44100_96"
+popup/item_4/id = 4
+popup/item_5/text = "mp3_44100_128"
+popup/item_5/id = 5
+popup/item_6/text = "mp3_44100_192"
+popup/item_6/id = 6
+popup/item_7/text = "wav_8000"
+popup/item_7/id = 7
+popup/item_8/text = "wav_16000"
+popup/item_8/id = 8
+popup/item_9/text = "wav_22050"
+popup/item_9/id = 9
+popup/item_10/text = "wav_24000"
+popup/item_10/id = 10
+popup/item_11/text = "wav_32000"
+popup/item_11/id = 11
+popup/item_12/text = "wav_44100"
+popup/item_12/id = 12
+popup/item_13/text = "wav_48000"
+popup/item_13/id = 13
+
+[node name="Label5" type="Label" parent="GridContainer" unique_id=1432380712]
 layout_mode = 2
 text = "Play immediately:"
 
-[node name="CheckBox" type="CheckBox" parent="VBoxContainer" unique_id=1530926806]
+[node name="CheckBox" type="CheckBox" parent="GridContainer" unique_id=1530926806]
 layout_mode = 2
 button_pressed = true
 
-[node name="Generate" type="Button" parent="VBoxContainer" unique_id=1378479899]
+[node name="Generate" type="Button" parent="GridContainer" unique_id=1378479899]
 layout_mode = 2
 text = "Generate"
 
-[node name="Status" type="RichTextLabel" parent="VBoxContainer" unique_id=375830196]
+[node name="Stop" type="Button" parent="GridContainer" unique_id=1190330827]
+visible = false
+layout_mode = 2
+text = "Stop"
+
+[node name="Status" type="RichTextLabel" parent="GridContainer" unique_id=375830196]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxEmpty_q1114")
 bbcode_enabled = true

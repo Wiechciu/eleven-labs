@@ -1,14 +1,57 @@
 @tool
+class_name ElevenLabs
 extends Node
 
 
+signal generated
+
+
+const HASH_LENGTH_IN_FILE_NAME: int = 12
+const TEXT_LENGTH_IN_FILE_NAME: int = 20
+
 const API_KEY_SETTING_PATH: String = "eleven_labs/api_key"
+const OUTPUT_FORMATS: Array[String] = [
+	"mp3_22050_32",
+	"mp3_24000_48",
+	"mp3_44100_32",
+	"mp3_44100_64",
+	"mp3_44100_96",
+	"mp3_44100_128",
+	"mp3_44100_192",
+	"wav_8000",
+	"wav_16000",
+	"wav_22050",
+	"wav_24000",
+	"wav_32000",
+	"wav_44100",
+	"wav_48000",
+]
 
+const COLOR_IN_PROGRESS: = Color(0.5294118, 0.80784315, 0.92156863, 1)
+const COLOR_SUCCESS: = Color(0.5647059, 0.93333334, 0.5647059, 1)
+const COLOR_ERROR: = Color(0.8039216, 0.36078432, 0.36078432, 1)
 
-@onready var COLOR_ERROR: String = Color.INDIAN_RED.to_html()
-@onready var COLOR_IN_PROGRESS: String = Color.SKY_BLUE.to_html()
-@onready var COLOR_SUCCESS: String = Color.LIGHT_GREEN.to_html()
+enum Status {
+	READY,
+	IN_PROGRESS,
+	SUCCESS,
+	ERROR,
+}
 
+@onready var status_to_color_map: Dictionary [Status, Color] = {
+	Status.READY: COLOR_SUCCESS,
+	Status.IN_PROGRESS: COLOR_IN_PROGRESS,
+	Status.SUCCESS: COLOR_SUCCESS,
+	Status.ERROR: COLOR_ERROR,
+}
+
+@onready var control_to_error_text_map: Dictionary [Control, String] = {
+	api_key: "No API Key entered.",
+	voices: "No Voice selected.",
+	text: "No Text entered.",
+	multi_text_file_path: "No Multi text path entered.",
+	output_path: "No Output path entered.",
+}
 
 @export var http: HTTPRequest
 @export var player: AudioStreamPlayer
@@ -17,27 +60,77 @@ const API_KEY_SETTING_PATH: String = "eleven_labs/api_key"
 @export var voices: OptionButton
 @export var load_voices: Button
 @export var status: RichTextLabel
+@export var text_label: Label
 @export var text: TextEdit
+@export var language_label: Label
 @export var language: LineEdit
-@export var path: LineEdit
+@export var output_path: LineEdit
 @export var generate: Button
+@export var stop: Button
+
 @export var play: CheckBox
+@export var output_format: OptionButton
+
+@export var usage: Label
+@export var refresh: Button
+
+@export var load_file: Button
+@export var file_dialog: FileDialog
+@export var multi_label: Label
+@export var multi_text_file_path: LineEdit
+@export var multi_container: HBoxContainer
+
+@export var request_type: CheckButton
+@export var request_type_label: Label
 
 @export var hide_icon: CompressedTexture2D
 @export var show_icon: CompressedTexture2D
 
-
 var _voice_ids: Array[String]
 var _last_request_ms: int
+
+var _should_stop: bool = false
 
 
 func _ready():
 	api_key.text = _get_api_key()
 	api_key.text_changed.connect(_save_api_key)
 	show_api_key.pressed.connect(_on_show_api_key_pressed)
-	load_voices.pressed.connect(get_voices)
-	generate.pressed.connect(generate_text_to_speech)
+	refresh.pressed.connect(_on_refresh_pressed)
+	load_voices.pressed.connect(_on_load_voices_pressed)
+	generate.pressed.connect(_on_generate_pressed)
 	status.meta_clicked.connect(_on_meta_clicked)
+	
+	request_type.pressed.connect(_on_request_type_pressed)
+	_on_request_type_pressed()
+	
+	load_file.pressed.connect(file_dialog.popup)
+	file_dialog.file_selected.connect(func(path): multi_text_file_path.text = path)
+	
+	stop.pressed.connect(func(): _should_stop = true)
+	
+	_fill_in_formats()
+	_switch_buttons(true)
+	_set_status(Status.READY)
+
+
+func _on_request_type_pressed() -> void:
+	request_type_label.text = "Multi" if request_type.button_pressed else "Single"
+	
+	language_label.visible = not request_type.button_pressed
+	language.visible = not request_type.button_pressed
+	text_label.visible = not request_type.button_pressed
+	text.visible = not request_type.button_pressed
+	
+	multi_label.visible = request_type.button_pressed
+	multi_container.visible = request_type.button_pressed
+
+
+func _fill_in_formats() -> void:
+	output_format.clear()
+	for format in OUTPUT_FORMATS:
+		output_format.add_item(format)
+	output_format.select(OUTPUT_FORMATS.find("mp3_44100_32"))
 
 
 func _save_api_key(key: String) -> void:
@@ -54,28 +147,62 @@ func _get_api_key() -> String:
 
 func _send_request(url: String, params: Dictionary, headers: Dictionary, method: HTTPClient.Method, payload: Dictionary, callback: Callable, button: Button) -> void:
 	_last_request_ms = Time.get_ticks_msec()
-	http.request_completed.connect(callback.bind(button))
+	http.request_completed.connect(callback.bind(button), CONNECT_ONE_SHOT)
 	var error = http.request(url + _get_params_string(params), _get_headers_array(headers), method, JSON.stringify(payload) if payload else "")
 	if error != OK:
-		status.text = "[color=%s]Error:[/color] An error occurred in the HTTP request." % COLOR_ERROR
-		button.disabled = false
+		_set_status(Status.ERROR, "An error occurred in the HTTP request.")
+		_switch_buttons(true)
 
 
-func generate_text_to_speech() -> void:
-	if api_key.text == "":
-		status.text = "[color=%s]Error:[/color] No API key entered." % COLOR_ERROR
+func _on_generate_pressed() -> void:
+	if not _check_if_entered(api_key):
 		return
 	
-	if voices.selected == -1:
-		status.text = "[color=%s]Error:[/color] No voice selected." % COLOR_ERROR
+	if not _check_if_entered(voices):
 		return
 	
-	if text.text == "":
-		status.text = "[color=%s]Error:[/color] No text entered." % COLOR_ERROR
+	if request_type.button_pressed:
+		if not _check_if_entered(multi_text_file_path):
+			return
+		
+		var file: = FileAccess.open(multi_text_file_path.text, FileAccess.READ)
+		file.get_as_text()
+		
+		var json: = JSON.new()
+		var parse_result := json.parse(file.get_as_text())
+		var body_array: Array = []
+		if parse_result == OK:
+			body_array = json.get_data()
+		else:
+			_set_status(Status.ERROR, "Incorrect file format.", true)
+			return
+		
+		if body_array.is_empty():
+			_set_status(Status.ERROR, "Incorrect file format.", true)
+			return
+		
+		if not body_array[0].has("language") or not body_array[0].has("text"):
+			_set_status(Status.ERROR, "Incorrect file format.", true)
+			return
+		
+		for phrase in body_array:
+			_generate(phrase.language, phrase.text)
+			await generated
+			if _should_stop:
+				_should_stop = false
+				return
+	else:
+		_generate(language.text, text.text)
+		await generated
+
+
+func _generate(language_: String, text_: String) -> void:
+	if text_ == "":
+		_set_status(Status.ERROR, "No text entered.")
 		return
 	
-	status.text = "[color=%s]In progress:[/color] ... awaiting response ..." % COLOR_IN_PROGRESS
-	generate.disabled = true
+	_set_status(Status.IN_PROGRESS, "awaiting response.")
+	_switch_buttons(false)
 	
 	var url = "https://api.elevenlabs.io/v1/text-to-speech/%s" % _voice_ids[voices.selected]
 	var method = HTTPClient.METHOD_POST
@@ -84,12 +211,12 @@ func generate_text_to_speech() -> void:
 	headers["xi-api-key"] = api_key.text
 	
 	var params = {}
-	params.output_format = "mp3_44100_32"
+	params.output_format = OUTPUT_FORMATS[output_format.selected]
 	
 	var payload = {}
-	payload.text = text.text
-	if language.text:
-		payload.language_code = language.text
+	payload.text = text_
+	if language_:
+		payload.language_code = language_
 		payload.apply_text_normalization = "on"
 	
 	_send_request(
@@ -98,30 +225,26 @@ func generate_text_to_speech() -> void:
 		headers,
 		method,
 		payload,
-		_on_text_to_speech_request_completed,
+		_on_text_to_speech_request_completed.bind(language_, text_),
 		generate,
 	)
 
 
-func _on_text_to_speech_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, button: Button):
-	button.disabled = false
-	http.request_completed.disconnect(_on_text_to_speech_request_completed)
+func _on_text_to_speech_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, button: Button, language_: String, text_: String):
+	#http.request_completed.disconnect(_on_text_to_speech_request_completed)
+	_switch_buttons(true)
+	generated.emit()
 	
-	if response_code == HTTPClient.RESPONSE_UNAUTHORIZED:
-		status.text = "[color=%s]Error (%dms):[/color] code: %s. Unauthorized - check API key." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms, response_code]
-		return
-	
-	if response_code != HTTPClient.RESPONSE_OK:
-		status.text = "[color=%s]Error (%dms):[/color] code: %s." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms, response_code]
+	if not _check_response_code(response_code):
 		return
 	
 	if body.size() == 0:
-		status.text = "[color=%s]Error (%dms):[/color] code: %s. Empty response." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms, response_code]
+		_set_status(Status.ERROR, "code: %s. Empty response." % response_code, true)
 		return
 	
-	var file_folder = path.text
-	var file_name = _get_file_name(language.text, text.text)
-	var file_extension = "mp3"
+	var file_folder = output_path.text
+	var file_name = _get_file_name(language_, text_)
+	var file_extension = OUTPUT_FORMATS[output_format.selected].left(3)
 	var file_full_path = "%s%s.%s" % [file_folder, file_name, file_extension]
 	
 	if not DirAccess.dir_exists_absolute(file_folder):
@@ -131,21 +254,27 @@ func _on_text_to_speech_request_completed(result: int, response_code: int, heade
 	file.close()
 	EditorInterface.get_resource_filesystem().scan_sources()
 	
-	status.text = "[color=%s]Success (%dms):[/color] File saved at [url]%s[/url]." % [COLOR_SUCCESS, Time.get_ticks_msec() - _last_request_ms, file_full_path]
+	_set_status(Status.SUCCESS, "File saved at [url]%s[/url]." % file_full_path, true)
 	
 	if play.button_pressed:
-		var stream = AudioStreamMP3.load_from_file(file_full_path)
-		player.stream = stream
-		player.play()
+		var stream: AudioStream
+		match file_extension:
+			"mp3":
+				stream = AudioStreamMP3.load_from_file(file_full_path)
+			"wav":
+				stream = AudioStreamWAV.load_from_file(file_full_path)
+		
+		if stream:
+			player.stream = stream
+			player.play()
 
 
-func get_voices() -> void:
-	if api_key.text == "":
-		status.text = "[color=%s]Error:[/color] No API key entered." % COLOR_ERROR
+func _on_load_voices_pressed() -> void:
+	if not _check_if_entered(api_key):
 		return
 	
-	status.text = "[color=%s]In progress:[/color] ... awaiting response ..." % COLOR_IN_PROGRESS
-	load_voices.disabled = true
+	_set_status(Status.IN_PROGRESS, "awaiting response.")
+	_switch_buttons(false)
 	
 	var url = "https://api.elevenlabs.io/v2/voices"
 	var method = HTTPClient.METHOD_GET
@@ -165,15 +294,10 @@ func get_voices() -> void:
 
 
 func _on_get_voices_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, button: Button) -> void:
-	button.disabled = false
-	http.request_completed.disconnect(_on_get_voices_request_completed)
+	#http.request_completed.disconnect(_on_get_voices_request_completed)
+	_switch_buttons(true)
 	
-	if response_code == HTTPClient.RESPONSE_UNAUTHORIZED:
-		status.text = "[color=%s]Error (%dms):[/color] code: %s. Unauthorized - check API key." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms, response_code]
-		return
-	
-	if response_code != HTTPClient.RESPONSE_OK:
-		status.text = "[color=%s]Error (%dms):[/color] code: %s." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms, response_code]
+	if not _check_response_code(response_code):
 		return
 	
 	var body_string: = body.get_string_from_utf8()
@@ -185,11 +309,11 @@ func _on_get_voices_request_completed(result: int, response_code: int, headers: 
 	if parse_result == OK:
 		body_dict = json.get_data()
 	else:
-		status.text = "[color=%s]Error (%dms):[/color] Incorrect response format." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms]
+		_set_status(Status.ERROR, "Incorrect response format.", true)
 		return
 	
 	if not body_dict.has("voices"):
-		status.text = "[color=%s]Error (%dms):[/color] Incorrect response format." % [COLOR_ERROR, Time.get_ticks_msec() - _last_request_ms]
+		_set_status(Status.ERROR, "Incorrect response format.", true)
 		return
 	
 	voices.clear()
@@ -199,17 +323,75 @@ func _on_get_voices_request_completed(result: int, response_code: int, headers: 
 		voices.add_item(voice.name)
 	voices.select(0)
 	
-	status.text = "[color=%s]Success (%dms):[/color] Loaded %s voices." % [COLOR_SUCCESS, Time.get_ticks_msec() - _last_request_ms, _voice_ids.size()]
+	status.text = "[color=%s]Success (%dms):[/color] Loaded %s voices." % [COLOR_SUCCESS.to_html(), Time.get_ticks_msec() - _last_request_ms, _voice_ids.size()]
 
 
-func _get_file_name(language_: String, text_: String, text_length: int = 20, hash_length: int = 12) -> String:
-	var clean_text = text_.to_lower()
-	clean_text = clean_text.left(text_length)
-	clean_text = clean_text.strip_edges()
-	clean_text = clean_text.remove_chars(r":/\?*\"|%<>!'@#$^&()-=+~`,.")
-	clean_text = clean_text.replace(" ", "_")
+func _on_refresh_pressed() -> void:
+	if not _check_if_entered(api_key):
+		return
 	
-	var hash: String = _get_hash(text_, hash_length)
+	_set_status(Status.IN_PROGRESS, "awaiting response.")
+	_switch_buttons(false)
+	
+	var url = "https://api.elevenlabs.io/v1/user"
+	var method = HTTPClient.METHOD_GET
+	
+	var headers = {}
+	headers["xi-api-key"] = api_key.text
+	
+	_send_request(
+		url,
+		{},
+		headers,
+		method,
+		{},
+		_on_refresh_request_completed,
+		refresh,
+	)
+
+
+func _on_refresh_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, button: Button) -> void:
+	#http.request_completed.disconnect(_on_refresh_request_completed)
+	_switch_buttons(true)
+	
+	if not _check_response_code(response_code):
+		return
+	
+	var body_string: = body.get_string_from_utf8()
+	
+	var json := JSON.new()
+	var parse_result := json.parse(body_string)
+	
+	var body_dict: Dictionary = {}
+	if parse_result == OK:
+		body_dict = json.get_data()
+	else:
+		_set_status(Status.ERROR, "Incorrect response format.", true)
+		return
+	
+	if not body_dict.has("subscription"):
+		_set_status(Status.ERROR, "Incorrect response format.", true)
+		return
+	
+	var percent: float = round(body_dict.subscription.character_count / body_dict.subscription.character_limit * 100)
+	usage.text = "%d / %d (%d%%)" % [body_dict.subscription.character_count, body_dict.subscription.character_limit, percent]
+	
+	_set_status(Status.SUCCESS, "Current usage: %s." % usage.text, true)
+
+
+func _get_file_name(language_: String, text_: String) -> String:
+	var clean_text = text_.to_lower()
+	clean_text = clean_text.left(TEXT_LENGTH_IN_FILE_NAME)
+	clean_text = clean_text.strip_edges()
+	
+	var regex = RegEx.new()
+	regex.compile("[^\\p{L}\\p{N}_]")
+	clean_text = regex.sub(clean_text, "_", true)
+	
+	regex.compile("_+")
+	clean_text = regex.sub(clean_text, "_", true)
+	
+	var hash: String = get_hash(text_)
 	
 	var file_name: String = ""
 	if language_:
@@ -222,11 +404,11 @@ func _get_file_name(language_: String, text_: String, text_length: int = 20, has
 	return file_name
 
 
-func _get_hash(text_to_hash: String, length: int = 12) -> String:
+static func get_hash(text_to_hash: String) -> String:
 	var ctx: = HashingContext.new()
 	ctx.start(HashingContext.HASH_SHA256)
 	ctx.update(text_to_hash.to_utf8_buffer())
-	return ctx.finish().hex_encode().left(length)
+	return ctx.finish().hex_encode().left(HASH_LENGTH_IN_FILE_NAME)
 
 
 func _get_headers_array(headers_dict: Dictionary) -> PackedStringArray:
@@ -254,3 +436,44 @@ func _on_meta_clicked(meta) -> void:
 func _on_show_api_key_pressed() -> void:
 	api_key.secret = not api_key.secret
 	show_api_key.icon = show_icon if api_key.secret else hide_icon
+
+
+func _switch_buttons(on: bool) -> void:
+	refresh.disabled = not on
+	load_voices.disabled = not on
+	#generate.disabled = not on
+	
+	generate.visible = on
+	stop.visible = not on
+	print(on)
+
+func _check_if_entered(control: Control) -> bool:
+	if control is LineEdit:
+		if control.text.is_empty():
+			_set_status(Status.ERROR, control_to_error_text_map[control])
+			return false
+	elif control is OptionButton:
+		if control.selected == -1:
+			_set_status(Status.ERROR, control_to_error_text_map[control])
+			return false
+	return true
+
+
+func _check_response_code(response_code: HTTPClient.ResponseCode) -> bool:
+	if response_code == HTTPClient.RESPONSE_UNAUTHORIZED:
+		_set_status(Status.ERROR, "code: %s. Unauthorized - check API key." % response_code, true)
+		return false
+	elif response_code != HTTPClient.RESPONSE_OK:
+		_set_status(Status.ERROR, "code: %s." % response_code, true)
+		return false
+	return true
+
+
+func _set_status(status_: Status, status_text: String = "", include_time: bool = false) -> void:
+	var status_color: String = status_to_color_map[status_].to_html()
+	var status_name: String = Status.keys()[status_].capitalize()
+	if include_time:
+		status_name += " (%sms)" % (Time.get_ticks_msec() - _last_request_ms)
+	if status_text:
+		status_text = status_text.insert(0, ": ")
+	status.text = "[color=%s]%s[/color]%s" % [status_color, status_name, status_text]
