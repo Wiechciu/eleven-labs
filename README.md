@@ -26,9 +26,7 @@ https://github.com/user-attachments/assets/a1eccef7-8b8d-42e2-a6d2-e24738333353
 
 ### 📦 Installation
 
-1. Either:
-   1. Install this repository as submodule into your git project with command `git submodule add https://github.com/Wiechciu/eleven-labs.git addons/eleven_labs`.
-   2. Or copy the contents of this repository folder into your Godot project’s `addons/eleven_labs` directory.
+1. Download contents of this repository into your Godot project’s directory.
 2. In Godot, go to **Project > Project Settings > Plugins**.
 3. Enable **ElevenLabs** Plugin.
 
