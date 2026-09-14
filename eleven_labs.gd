@@ -92,7 +92,7 @@ var _last_request_ms: int
 var _should_stop: bool = false
 
 
-func _ready():
+func initialize():
 	api_key.text = _get_api_key()
 	api_key.text_changed.connect(_save_api_key)
 	show_api_key.pressed.connect(_on_show_api_key_pressed)
@@ -445,7 +445,7 @@ func _switch_buttons(on: bool) -> void:
 	
 	generate.visible = on
 	stop.visible = not on
-	print(on)
+
 
 func _check_if_entered(control: Control) -> bool:
 	if control is LineEdit:

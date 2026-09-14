@@ -69,7 +69,6 @@ expand_icon = true
 [node name="APIKey" type="LineEdit" parent="GridContainer/HBoxContainer" unique_id=1503450122]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "6d690debcee659b6f9b0505316dfe2e325190769c8ec16cd7decc65041f325b5"
 placeholder_text = "api key"
 secret = true
 
@@ -234,5 +233,5 @@ text = "Stop"
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxEmpty_q1114")
 bbcode_enabled = true
-text = "Ready"
+text = "[color=90ee90ff]Ready[/color]"
 vertical_alignment = 1

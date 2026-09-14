@@ -15,6 +15,7 @@ func _enter_tree():
 	dock.default_slot = EditorDock.DOCK_SLOT_BOTTOM
 	dock.available_layouts = EditorDock.DOCK_LAYOUT_ALL
 	add_dock(dock)
+	dock_scene.initialize()
 	
 	var parent = dock.get_parent()
 	if parent is TabContainer:
